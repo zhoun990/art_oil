@@ -35,8 +35,8 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
 var App = function App() {
   var interval = 20;
-  var size = 50;
-  var gen = 100;
+  var size = 60;
+  var gen = 50;
   var minSize = 10;
   var maxSize = 120;
   var initSpeed = 15;
@@ -90,7 +90,7 @@ var App = function App() {
   };
 
   var calcDefBtwPs = function calcDefBtwPs(x1, y1, x2, y2, radius1, radius2) {
-    return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
+    return Math.sqrt(Math.pow(x2 + radius2 - x1 + radius1, 2) + Math.pow(y2 + radius2 - y1 + radius1, 2));
   };
 
   var calcSpeed = function calcSpeed(vx, vy) {
@@ -118,7 +118,6 @@ var App = function App() {
             var client = type === "x" ? document.body.clientWidth : document.body.clientHeight;
             var isBlack = array[i].color === "black";
             var isWhite = array[i].color === "white";
-            var isRed = array[i].color === "red";
 
             if (client > array[i][type] + array[i].size && 0 < array[i][type]) {
               if (array[i].vx === 0 && array[i].vy === 0) {
@@ -128,19 +127,17 @@ var App = function App() {
               array[i][type] += array[i][v];
             } else {
               var boundFunc = function boundFunc() {
-                if (boundAndSmaller && (halfSize > minSize || array[i].color === "black") && array[i].size < maxSize * (2 / 3) && array.length < 300) {
+                if (boundAndSmaller && (halfSize > minSize || array[i].color === "black") && array[i].size < maxSize * (2 / 3)) {
                   if (array[i].splitCoolTime === 0) {
                     array[i].size = changeSize;
                     array[i].splitCoolTime += 100;
-                    array[i].rest += 100;
                     var cv = random(1, 0);
                     addListA.push(_objectSpread(_objectSpread({}, array[i]), {}, {
                       vx: array[i].vx + 1 - cv,
-                      vy: array[i].vy - cv,
-                      rest: isBlack ? array[i].rest + 200 : array[i].rest
+                      vy: isBlack ? array[i][v] : array[i][v] - cv
                     }));
-                    array[i].vx -= isBlack ? 0 : isRed ? -1 : cv;
-                    array[i].vy += 1 - cv;
+                    array[i].vx -= isBlack ? 0 : cv;
+                    array[i][v] += 1 - cv;
                     array[i].color = isWhite ? "blue" : array[i].color;
                   }
                 }
@@ -186,19 +183,16 @@ var App = function App() {
             if (_i2 !== j) {
               var ni = array[_i2].size / 2;
               var nj = array[j].size / 2;
-              var x1 = array[_i2].x + ni;
-              var y1 = array[_i2].y + ni;
-              var x2 = array[j].x + nj;
-              var y2 = array[j].y + nj;
+              var x1 = array[_i2].x;
+              var y1 = array[_i2].y;
+              var x2 = array[j].x;
+              var y2 = array[j].y;
               var size1 = array[_i2].size;
               var size2 = array[j].size;
-              var speed1 = calcSpeed(array[_i2].vx, array[_i2].vy);
-              var speed2 = calcSpeed(array[j].vx, array[j].vy);
 
-              if (calcDefBtwPs(x1, y1, x2, y2, ni, nj) < ni + nj) {
-                // 当たり判定クリア
-                if (!deleteList.includes(_i2) && !deleteList.includes(j) && !boundList.includes(_i2) && !boundList.includes(j)) {
-                  if (document.body.clientWidth - size1 - wall >= x1 && wall <= x1 && document.body.clientHeight - size1 - wall >= y1 && wall <= y1 && document.body.clientWidth - size2 - wall >= x2 && wall <= x2 && document.body.clientHeight - size2 - wall >= y2 && wall <= y2 && !array[_i2].splitCoolTime && !array[j].splitCoolTime && hitAndDelete) {
+              if (x1 + ni > x2 - nj && x1 - ni < x2 + nj && y1 + ni > y2 - nj && y1 - ni < y2 + nj && calcDefBtwPs(x1, y1, x2, y2, ni, nj) < ni + nj) {
+                if (!deleteList.includes(_i2) && !deleteList.includes(j)) {
+                  if (!array[_i2].rest && !array[j].rest && hitAndDelete && document.body.clientWidth - size1 - wall >= x1 && wall <= x1 && document.body.clientHeight - size1 - wall >= y1 && wall <= y1 && document.body.clientWidth - size2 - wall >= x2 && wall <= x2 && document.body.clientHeight - size2 - wall >= y2 && wall <= y2) {
                     // console.log("HIT!!");
                     deleteList.push(_i2);
                     deleteList.push(j);
@@ -206,71 +200,63 @@ var App = function App() {
                       i: _objectSpread({}, array[_i2]),
                       j: _objectSpread({}, array[j])
                     });
-                  } else if (!array[_i2].splitCoolTime && !array[j].splitCoolTime && !array[_i2].rest && !array[j].rest) {
-                    //   let dx = array[i].x - array[j].x;
-                    //   let dy = array[i].y - array[j].y;
-                    //   const len = Math.sqrt(dx ** 2 + dy ** 2);
-                    //   let distance = ni + nj - len;
-                    //   if (len > 0) {
-                    //     len = 1 / len;
-                    //   }
-                    //   dx *= len;
-                    //   dy *= len;
-                    //   const small = size1 > size2 ? j : i;
-                    //   array[small].x += dx * distance;
-                    //   array[small].y += dy * distance;
-                    var t = void 0;
-                    var vx = array[j].x - array[_i2].x;
-                    var vy = array[j].y - array[_i2].y;
-                    t = -(vx * array[_i2].vx + vy * array[_i2].vy) / (vx * vx + vy * vy);
-                    var arx = array[_i2].vx + vx * t;
-                    var ary = array[_i2].vy + vy * t;
-                    t = -(-vy * array[_i2].vx + vx * array[_i2].vy) / (vy * vy + vx * vx);
-                    var amx = array[_i2].vx - vy * t;
-                    var amy = array[_i2].vy + vx * t;
-                    t = -(vx * array[j].vx + vy * array[j].vy) / (vx * vx + vy * vy);
-                    var brx = array[j].vx + vx * t;
-                    var bry = array[j].vy + vy * t;
-                    t = -(-vy * array[j].vx + vx * array[j].vy) / (vy * vy + vx * vx);
-                    var bmx = array[j].vx - vy * t;
-                    var bmy = array[j].vy + vx * t;
-                    var e = 1.0;
-                    var adx = (ni * amx + nj * bmx + bmx * e * nj - amx * e * nj) / (ni + nj);
-                    var bdx = -e * (bmx - amx) + adx;
-                    var ady = (ni * amy + nj * bmy + bmy * e * nj - amy * e * nj) / (ni + nj);
-                    var bdy = -e * (bmy - amy) + ady;
-                    array[_i2].vx = adx + arx;
-                    array[_i2].vy = ady + ary;
-                    array[j].vx = bdx + brx;
-                    array[j].vy = bdy + bry;
-                    boundList.push(_i2);
-                    boundList.push(j);
-                  } else {
-                    if (array[_i2].color == array[j].color && (array[_i2].color == "green" || array[_i2].color == "yellow")) {
-                      // const boost = 1 * Math.sign(array[i].vx);
-                      // array[i].vx += boost;
-                      // array[i].vy += boost;
-                      // array[j].vx += boost;
-                      // array[j].vy += boost;
-                      // array[i].color = "yellow";
-                      // array[j].color = "yellow";
-                      array[_i2].color = _chromaJs["default"].random();
-                      array[j].color = _chromaJs["default"].random();
+                  } else if (!boundList.includes(_i2) && !boundList.includes(j)) {
+                    if (!array[_i2].splitCoolTime && !array[j].splitCoolTime) {
+                      var t = void 0;
+                      var vx = array[j].x - array[_i2].x;
+                      var vy = array[j].y - array[_i2].y;
+                      t = -(vx * array[_i2].vx + vy * array[_i2].vy) / (vx * vx + vy * vy);
+                      var arx = array[_i2].vx + vx * t;
+                      var ary = array[_i2].vy + vy * t;
+                      t = -(-vy * array[_i2].vx + vx * array[_i2].vy) / (vy * vy + vx * vx);
+                      var amx = array[_i2].vx - vy * t;
+                      var amy = array[_i2].vy + vx * t;
+                      t = -(vx * array[j].vx + vy * array[j].vy) / (vx * vx + vy * vy);
+                      var brx = array[j].vx + vx * t;
+                      var bry = array[j].vy + vy * t;
+                      t = -(-vy * array[j].vx + vx * array[j].vy) / (vy * vy + vx * vx);
+                      var bmx = array[j].vx - vy * t;
+                      var bmy = array[j].vy + vx * t;
+                      var e = 1.0;
+                      var adx = (array[_i2].size * amx + array[j].size * bmx + bmx * e * array[j].size - amx * e * array[j].size) / (array[_i2].size + array[j].size);
+                      var bdx = -e * (bmx - amx) + adx;
+                      var ady = (array[_i2].size * amy + array[j].size * bmy + bmy * e * array[j].size - amy * e * array[j].size) / (array[_i2].size + array[j].size);
+                      var bdy = -e * (bmy - amy) + ady;
+                      array[_i2].vx = adx + arx;
+                      array[_i2].vy = ady + ary;
+                      array[j].vx = bdx + brx;
+                      array[j].vy = bdy + bry;
+                      boundList.push(_i2);
+                      boundList.push(j); // array[i].vx = array[j].vy;
+                      // array[i].v += array[j].vy;
+                      // array[i].vy = array[j].vx;
+                      // array[i].y += array[j].vx;
+                      // array[j].vx = array[i].vy;
+                      // array[j].x += array[i].vy;
+                      // array[j].vy = array[i].vx;
+                      // array[j].y += array[i].vx;
+                    } else if (array[_i2].color == array[j].color && array[_i2].color == "white") {
+                      var boost = 1 * Math.sign(array[_i2].vx);
+                      array[_i2].vx += boost;
+                      array[_i2].vy += boost;
+                      array[j].vx += boost;
+                      array[j].vy += boost;
+                      array[_i2].color = "#ffff00";
+                      array[j].color = "#ffff00";
                     } else if (array[_i2].color !== array[j].color) {
-                      var scale = _chromaJs["default"].scale([array[_i2].color, array[j].color]); // const newColor = scale(0.5).hex();
+                      var scale = _chromaJs["default"].scale([array[_i2].color, array[j].color]);
 
-
-                      var newColor = array[_i2].color === "black" && speed1 < speed2 * 2 && speed2 < speed1 * 2 ? "black" : scale(0.5).hex();
-                      array[_i2].color = newColor;
-                      array[j].color = newColor;
-                    } else if (array[_i2].color !== "white" && array[_i2].color !== "yellow" && array[_i2].color !== "red" && array[_i2].color !== "green") {
-                      array[j].color = array[_i2].color;
-                    } else if (array[j].color !== "white" && array[j].color !== "yellow" && array[j].color !== "red" && array[j].color !== "green") {
+                      var newColor = scale(0.5).hex();
+                      array[_i2].color = array[_i2].color === "black" ? "black" : newColor;
+                      array[j].color = array[j].color === "black" ? "black" : newColor;
+                    } else {
                       array[_i2].color = array[j].color;
+                      array[j].color = array[_i2].color;
                     }
+                  } else {
+                    // array[i].color = "#008000";
+                    array[j].color = _chromaJs["default"].random();
                   }
-                } else {
-                  array[_i2].color = size1 > size2 ? "green" : "yellow"; // array[j].color = chroma.random();
                 }
               }
             }
@@ -365,7 +351,10 @@ var App = function App() {
               size: addListSize(_i5),
               rest: 20,
               splitCoolTime: 0,
-              color: addListB[_i5].i.color === "black" || addListB[_i5].j.color === "black" ? "black" : "white"
+              color: "white" // addListB[i].i.color === "black" || addListB[i].j.color === "black"
+              //   ? "black"
+              //   : "#ffffff",
+
             });
           }
         } // console.log("^_^ Log \n file: index.tsx \n line 79 \n array", array);
@@ -379,7 +368,7 @@ var App = function App() {
   var start = function start() {
     var array = [];
 
-    for (var i = 0; document.body.clientWidth > 700 ? i < gen : i < Math.floor(gen / 2); i++) {
+    for (var i = 0; i < gen; i++) {
       array.push(generateItem());
     }
 
@@ -393,19 +382,10 @@ var App = function App() {
 
     for (var i = 0; i < points.length; i++) {
       n += points[i].size;
-    } // calcVolume(n) > 10000000 && start();
-    // console.log("^_^ Log \n file: index.tsx \n line 335 \n n", calcVolume(n));
-
-
-    if (points.length == 1) {
-      points[0].size = maxSize + 1;
     }
 
-    console.log("^_^ Log \n file: index.js \n line 368 \n points.length", points.length);
-
-    if (points.length > 500) {
-      start();
-    }
+    calcVolume(n) > 10000000 && start();
+    console.log("^_^ Log \n file: index.tsx \n line 335 \n n", calcVolume(n));
   }, [points]);
   (0, _react.useEffect)(function () {
     start();
@@ -435,9 +415,6 @@ var App = function App() {
       backgroundColor: "black"
     },
     onClick: function onClick() {
-      return setIsEnable(!isEnable);
-    },
-    onDoubleClick: function onDoubleClick() {
       return start();
     }
   }, points.map(function (point, i) {
