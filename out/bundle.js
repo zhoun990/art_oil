@@ -36,8 +36,8 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 var App = function App() {
   var interval = 20;
   var size = 50;
-  var gen = 100;
-  var minSize = 10;
+  var gen = 2;
+  var minSize = 20;
   var maxSize = 120;
   var initSpeed = 15;
   var maxSpeed = 15;
@@ -75,9 +75,10 @@ var App = function App() {
       vx: Math.floor(Math.random() * initSpeed - initSpeed / 2),
       vy: Math.floor(Math.random() * initSpeed - initSpeed / 2),
       size: size,
-      rest: 0,
-      splitCoolTime: 0,
-      color: "black"
+      rest: 20,
+      splitCoolTime: 20,
+      color: "black",
+      margeCount: 0
     };
   };
 
@@ -111,7 +112,8 @@ var App = function App() {
           var sizeDef = changeSize - array[i].size;
           var isBigger = array[i].size < changeSize && array[i].rest === 0;
           if (array[i].rest > 0) array[i].rest -= 1;
-          if (array[i].splitCoolTime > 0) array[i].splitCoolTime -= 1; // console.log("^_^ Log \n file: index.tsx \n line 44 \n array[i].rest", array[i].rest);
+          if (array[i].splitCoolTime > 0) array[i].splitCoolTime -= 1;
+          if (array[i].margeCount > 0) array[i].margeCount -= 1; // console.log("^_^ Log \n file: index.tsx \n line 44 \n array[i].rest", array[i].rest);
 
           var onWall = function onWall(type) {
             var v = "v".concat(type);
@@ -131,8 +133,8 @@ var App = function App() {
                 if (boundAndSmaller && (halfSize > minSize || array[i].color === "black") && array[i].size < maxSize * (2 / 3) && array.length < 300) {
                   if (array[i].splitCoolTime === 0) {
                     array[i].size = changeSize;
-                    array[i].splitCoolTime += 100;
-                    array[i].rest += 100;
+                    array[i].splitCoolTime += 50;
+                    array[i].rest += 50;
                     var cv = random(1, 0);
                     addListA.push(_objectSpread(_objectSpread({}, array[i]), {}, {
                       vx: array[i].vx + 1 - cv,
@@ -198,7 +200,7 @@ var App = function App() {
               if (calcDefBtwPs(x1, y1, x2, y2, ni, nj) < ni + nj) {
                 // 当たり判定クリア
                 if (!deleteList.includes(_i2) && !deleteList.includes(j) && !boundList.includes(_i2) && !boundList.includes(j)) {
-                  if (document.body.clientWidth - size1 - wall >= x1 && wall <= x1 && document.body.clientHeight - size1 - wall >= y1 && wall <= y1 && document.body.clientWidth - size2 - wall >= x2 && wall <= x2 && document.body.clientHeight - size2 - wall >= y2 && wall <= y2 && !array[_i2].splitCoolTime && !array[j].splitCoolTime && hitAndDelete) {
+                  if ((document.body.clientWidth - size1 - wall >= x1 && wall <= x1 && document.body.clientHeight - size1 - wall >= y1 && wall <= y1 && document.body.clientWidth - size2 - wall >= x2 && wall <= x2 && document.body.clientHeight - size2 - wall >= y2 && wall <= y2 && !array[_i2].splitCoolTime && !array[j].splitCoolTime || array[_i2].margeCount > 40 && array[j].margeCount > 40) && hitAndDelete) {
                     // console.log("HIT!!");
                     deleteList.push(_i2);
                     deleteList.push(j);
@@ -207,7 +209,8 @@ var App = function App() {
                       j: _objectSpread({}, array[j])
                     });
                   } else if (!array[_i2].splitCoolTime && !array[j].splitCoolTime && !array[_i2].rest && !array[j].rest) {
-                    //   let dx = array[i].x - array[j].x;
+                    array[_i2].margeCount += 2;
+                    array[j].margeCount += 2; //   let dx = array[i].x - array[j].x;
                     //   let dy = array[i].y - array[j].y;
                     //   const len = Math.sqrt(dx ** 2 + dy ** 2);
                     //   let distance = ni + nj - len;
@@ -219,6 +222,7 @@ var App = function App() {
                     //   const small = size1 > size2 ? j : i;
                     //   array[small].x += dx * distance;
                     //   array[small].y += dy * distance;
+
                     var t = void 0;
                     var vx = array[j].x - array[_i2].x;
                     var vy = array[j].y - array[_i2].y;
@@ -334,7 +338,8 @@ var App = function App() {
               size: _size / 3,
               rest: 50,
               splitCoolTime: 100,
-              color: "black"
+              color: "black",
+              margeCount: 0
             });
             array.push({
               x: addListB[_i5].j.x,
@@ -344,7 +349,8 @@ var App = function App() {
               size: _size / 3,
               rest: 50,
               splitCoolTime: 100,
-              color: "black"
+              color: "black",
+              margeCount: 0
             });
             array.push({
               x: addListAverage(_i5, "x"),
@@ -354,7 +360,8 @@ var App = function App() {
               size: _size / 3,
               rest: 50,
               splitCoolTime: 100,
-              color: "black"
+              color: "black",
+              margeCount: 0
             });
           } else if (hitAndFusion) {
             array.push({
@@ -365,7 +372,11 @@ var App = function App() {
               size: addListSize(_i5),
               rest: 20,
               splitCoolTime: 0,
-              color: addListB[_i5].i.color === "black" || addListB[_i5].j.color === "black" ? "black" : "white"
+              color: // addListB[i].i.color === "black" || addListB[i].j.color === "black"
+              //   ? "black"
+              //   :
+              "white",
+              margeCount: 0
             });
           }
         } // console.log("^_^ Log \n file: index.tsx \n line 79 \n array", array);
@@ -398,7 +409,41 @@ var App = function App() {
 
 
     if (points.length == 1) {
-      points[0].size = maxSize + 1;
+      var array = points.concat();
+      array.push({
+        x: points[0].x,
+        y: points[0].y,
+        vx: -points[0].vx - 5,
+        vy: points[0].vy - 5,
+        size: maxSize / 2,
+        rest: 100,
+        splitCoolTime: 100,
+        color: "black",
+        margeCount: 0
+      });
+      array.push({
+        x: points[0].x,
+        y: points[0].y,
+        vx: points[0].vx + 5,
+        vy: -points[0].vy + 5,
+        size: maxSize / 2,
+        rest: 100,
+        splitCoolTime: 100,
+        color: "black",
+        margeCount: 0
+      });
+      array.push({
+        x: points[0].x,
+        y: points[0].y,
+        vx: -points[0].vx,
+        vy: -points[0].vy,
+        size: maxSize / 2,
+        rest: 100,
+        splitCoolTime: 100,
+        color: "black",
+        margeCount: 0
+      });
+      refPoints.current = array;
     }
 
     console.log("^_^ Log \n file: index.js \n line 368 \n points.length", points.length);

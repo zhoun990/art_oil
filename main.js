@@ -8,8 +8,8 @@ import ReactDOM from "react-dom";
 const App = () => {
 	const interval = 20;
 	const size = 50;
-	const gen = 100;
-	const minSize = 10;
+	const gen = 2;
+	const minSize = 20;
 	const maxSize = 120;
 	const initSpeed = 15;
 	const maxSpeed = 15;
@@ -32,9 +32,10 @@ const App = () => {
 		vx: Math.floor(Math.random() * initSpeed - initSpeed / 2),
 		vy: Math.floor(Math.random() * initSpeed - initSpeed / 2),
 		size: size,
-		rest: 0,
-		splitCoolTime: 0,
+		rest: 20,
+		splitCoolTime: 20,
 		color: "black",
+		margeCount: 0,
 	  };
 	};
 	const calcVolume = (fullSize) => {
@@ -64,6 +65,7 @@ const App = () => {
 		  const isBigger = array[i].size < changeSize && array[i].rest === 0;
 		  if (array[i].rest > 0) array[i].rest -= 1;
 		  if (array[i].splitCoolTime > 0) array[i].splitCoolTime -= 1;
+		  if (array[i].margeCount > 0) array[i].margeCount -= 1;
 		  // console.log("^_^ Log \n file: index.tsx \n line 44 \n array[i].rest", array[i].rest);
 
 		  const onWall = (type) => {
@@ -87,8 +89,8 @@ const App = () => {
 				) {
 				  if (array[i].splitCoolTime === 0) {
 					array[i].size = changeSize;
-					array[i].splitCoolTime += 100;
-					array[i].rest += 100;
+					array[i].splitCoolTime += 50;
+					array[i].rest += 50;
 					const cv = random(1, 0);
 					addListA.push({
 					  ...array[i],
@@ -154,16 +156,17 @@ const App = () => {
 				  !boundList.includes(j)
 				) {
 				  if (
-					document.body.clientWidth - size1 - wall >= x1 &&
-					wall <= x1 &&
-					document.body.clientHeight - size1 - wall >= y1 &&
-					wall <= y1 &&
-					document.body.clientWidth - size2 - wall >= x2 &&
-					wall <= x2 &&
-					document.body.clientHeight - size2 - wall >= y2 &&
-					wall <= y2 &&
-					!array[i].splitCoolTime &&
-					!array[j].splitCoolTime &&
+					((document.body.clientWidth - size1 - wall >= x1 &&
+					  wall <= x1 &&
+					  document.body.clientHeight - size1 - wall >= y1 &&
+					  wall <= y1 &&
+					  document.body.clientWidth - size2 - wall >= x2 &&
+					  wall <= x2 &&
+					  document.body.clientHeight - size2 - wall >= y2 &&
+					  wall <= y2 &&
+					  !array[i].splitCoolTime &&
+					  !array[j].splitCoolTime) ||
+					  (array[i].margeCount > 40 && array[j].margeCount > 40)) &&
 					hitAndDelete
 				  ) {
 					// console.log("HIT!!");
@@ -176,6 +179,8 @@ const App = () => {
 					!array[i].rest &&
 					!array[j].rest
 				  ) {
+					array[i].margeCount += 2;
+					array[j].margeCount += 2;
 					//   let dx = array[i].x - array[j].x;
 					//   let dy = array[i].y - array[j].y;
 					//   const len = Math.sqrt(dx ** 2 + dy ** 2);
@@ -312,6 +317,7 @@ const App = () => {
 			  rest: 50,
 			  splitCoolTime: 100,
 			  color: "black",
+			  margeCount: 0,
 			});
 			array.push({
 			  x: addListB[i].j.x,
@@ -322,6 +328,7 @@ const App = () => {
 			  rest: 50,
 			  splitCoolTime: 100,
 			  color: "black",
+			  margeCount: 0,
 			});
 			array.push({
 			  x: addListAverage(i, "x"),
@@ -332,6 +339,7 @@ const App = () => {
 			  rest: 50,
 			  splitCoolTime: 100,
 			  color: "black",
+			  margeCount: 0,
 			});
 		  } else if (hitAndFusion) {
 			array.push({
@@ -343,9 +351,11 @@ const App = () => {
 			  rest: 20,
 			  splitCoolTime: 0,
 			  color:
-				addListB[i].i.color === "black" || addListB[i].j.color === "black"
-				  ? "black"
-				  : "white",
+				// addListB[i].i.color === "black" || addListB[i].j.color === "black"
+				//   ? "black"
+				//   :
+				  "white",
+			  margeCount: 0,
 			});
 		  }
 		}
@@ -372,7 +382,41 @@ const App = () => {
 	  // calcVolume(n) > 10000000 && start();
 	  // console.log("^_^ Log \n file: index.tsx \n line 335 \n n", calcVolume(n));
 	  if (points.length == 1) {
-		points[0].size = maxSize + 1;
+		const array = points.concat();
+		array.push({
+		  x: points[0].x,
+		  y: points[0].y,
+		  vx: -points[0].vx - 5,
+		  vy: points[0].vy - 5,
+		  size: maxSize / 2,
+		  rest: 100,
+		  splitCoolTime: 100,
+		  color: "black",
+		  margeCount: 0,
+		});
+		array.push({
+		  x: points[0].x,
+		  y: points[0].y,
+		  vx: points[0].vx + 5,
+		  vy: -points[0].vy + 5,
+		  size: maxSize / 2,
+		  rest: 100,
+		  splitCoolTime: 100,
+		  color: "black",
+		  margeCount: 0,
+		});
+		array.push({
+		  x: points[0].x,
+		  y: points[0].y,
+		  vx: -points[0].vx,
+		  vy: -points[0].vy,
+		  size: maxSize / 2,
+		  rest: 100,
+		  splitCoolTime: 100,
+		  color: "black",
+		  margeCount: 0,
+		});
+		refPoints.current = array;
 	  }
 	  console.log("^_^ Log \n file: index.js \n line 368 \n points.length", points.length);
 

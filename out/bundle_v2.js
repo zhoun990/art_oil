@@ -372,10 +372,7 @@ var App = function App() {
               size: addListSize(_i5),
               rest: 20,
               splitCoolTime: 0,
-              color: // addListB[i].i.color === "black" || addListB[i].j.color === "black"
-              //   ? "black"
-              //   :
-              "white",
+              color: addListB[_i5].i.color === "black" || addListB[_i5].j.color === "black" ? "black" : "white",
               margeCount: 0
             });
           }
