@@ -51,7 +51,7 @@ export default function App() {
 
 				const onWall = (type: "x" | "y") => {
 					const v = `v${type}` as "vx" | "vy";
-					const client = type === "x" ? ScreenSize.Width : ScreenSize.Height;
+					const client = type === "x" ? ScreenSize.Width() : ScreenSize.Height();
 					const item = array[i];
 					if (client > item[type] + item.size && 0 < item[type]) {
 						//壁にぶつかっていない場合
@@ -144,13 +144,13 @@ export default function App() {
 							) {
 								if (
 									//衝突無効化エリア外かどうか
-									((ScreenSize.Width - size1 - SDAFW >= x1 &&
+									((ScreenSize.Width() - size1 - SDAFW >= x1 &&
 										SDAFW <= x1 &&
-										ScreenSize.Height - size1 - SDAFW >= y1 &&
+										ScreenSize.Height() - size1 - SDAFW >= y1 &&
 										SDAFW <= y1 &&
-										ScreenSize.Width - size2 - SDAFW >= x2 &&
+										ScreenSize.Width() - size2 - SDAFW >= x2 &&
 										SDAFW <= x2 &&
-										ScreenSize.Height - size2 - SDAFW >= y2 &&
+										ScreenSize.Height() - size2 - SDAFW >= y2 &&
 										SDAFW <= y2 &&
 										//splitCoolTimeチェック
 										itemA.splitCoolTime <= 0 &&
@@ -376,7 +376,7 @@ export default function App() {
 		const array = [];
 		for (
 			let i = 0;
-			ScreenSize.Width > 700 ? i < GEN_COUNT : i < Math.floor(GEN_COUNT / 2);
+			ScreenSize.Width() > 700 ? i < GEN_COUNT : i < Math.floor(GEN_COUNT / 2);
 			i++
 		) {
 			array.push(generateItem());

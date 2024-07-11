@@ -12,8 +12,8 @@ export const random = (max: number, min: number) => {
 };
 export const generateItem = (): Point => {
 	return {
-		x: random(ScreenSize.Width - INITIAL_SIZE, 0),
-		y: random(ScreenSize.Height - INITIAL_SIZE, 0),
+		x: random(ScreenSize.Width() - INITIAL_SIZE, 0),
+		y: random(ScreenSize.Height() - INITIAL_SIZE, 0),
 		vx: Math.floor(Math.random() * INITIAL_SPEED - INITIAL_SPEED / 2),
 		vy: Math.floor(Math.random() * INITIAL_SPEED - INITIAL_SPEED / 2),
 		size: INITIAL_SIZE,

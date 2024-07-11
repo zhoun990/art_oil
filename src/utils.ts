@@ -1,4 +1,4 @@
 export const ScreenSize = {
-	Width: document.body.clientWidth,
-	Height: document.body.clientHeight,
+	Width: () => document.body.clientWidth,
+	Height: () => document.body.clientHeight,
 };
