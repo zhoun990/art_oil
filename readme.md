@@ -1,17 +1,17 @@
 # Art Oil
 
 ## Overview
-Art Oil is an interactive art project created using React and Chroma.js. This project runs in the browser and allows you to enjoy dynamic changes in color and shape.
+This program is an interactive art project created using React. This project runs in the browser and allows you to enjoy dynamic changes in color and shape.
 
 ## Demo
-[Demo Link](https://github.com/zhoun990/art_oil)
+[Demo Link](https://art-oil.vercel.app/)
 
 
-## Directory Structure
+<!-- ## Directory Structure
 The main directories and files of the project are as follows:
 
 - `out/`: Built files
-- `main.js`: Main JavaScript file
+- `main.js`: Main JavaScript file -->
 
 ## Technologies Used
 - [React](https://reactjs.org/)
